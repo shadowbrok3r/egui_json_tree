@@ -218,25 +218,21 @@ impl Editor {
                     }));
                 }
 
-                match (context.pointer.parent(), context.pointer.last()) {
-                    (Some(parent), Some(JsonPointerSegment::Key(key))) => {
-                        if ui.button("Delete").clicked() {
-                            self.edit_events.push(EditEvent::DeleteFromObject {
-                                object_pointer: parent.to_json_pointer_string(),
-                                key: key.to_string(),
-                            });
-                        }
-                    }
-                    (Some(parent), Some(JsonPointerSegment::Index(idx))) => {
-                        if ui.button("Delete").clicked() {
-                            self.edit_events.push(EditEvent::DeleteFromArray {
-                                array_pointer: parent.to_json_pointer_string(),
-                                idx: *idx,
-                            });
-                        }
-                    }
-                    _ => {}
-                };
+                if let (Some(parent), Some(last)) =
+                    (context.pointer.parent(), context.pointer.last())
+                    && ui.button("Delete").clicked()
+                {
+                    self.edit_events.push(match last {
+                        JsonPointerSegment::Key(key) => EditEvent::DeleteFromObject {
+                            object_pointer: parent.to_json_pointer_string(),
+                            key: key.to_string(),
+                        },
+                        JsonPointerSegment::Index(idx) => EditEvent::DeleteFromArray {
+                            array_pointer: parent.to_json_pointer_string(),
+                            idx: *idx,
+                        },
+                    });
+                }
             });
     }
 
