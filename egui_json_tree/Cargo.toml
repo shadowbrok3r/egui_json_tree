@@ -1,10 +1,11 @@
 [package]
 name = "egui_json_tree"
-version = "0.13.0"
+version = "0.16.0"
 description = "An interactive JSON tree visualiser for egui, with search and highlight functionality."
 keywords = ["json", "egui", "gui", "ui", "widget"]
 categories = ["gui", "visualization"]
 include = ["src/*.rs", "../LICENSE-MIT", "../LICENSE-APACHE", "Cargo.toml"]
+readme = "../README.md"
 publish = true
 
 authors.workspace = true

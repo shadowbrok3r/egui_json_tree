@@ -4,9 +4,9 @@ use std::fmt::Display;
 
 use egui::{
     Color32, FontId, Label, Response, Sense, TextFormat, Ui,
+    cache::{ComputerMut, FrameCache},
     collapsing_header::CollapsingState,
     text::LayoutJob,
-    util::cache::{ComputerMut, FrameCache},
 };
 
 use crate::{
@@ -56,7 +56,7 @@ impl<'a, T: ToJsonTreeValue> RenderContext<'a, '_, T> {
     }
 
     /// Convenience method to access the full JSON pointer to the JSON value involved in this render call.
-    pub fn pointer(&self) -> JsonPointer {
+    pub fn pointer(&self) -> JsonPointer<'a, '_> {
         match self {
             RenderContext::Property(context) => context.pointer,
             RenderContext::BaseValue(context) => context.pointer,
@@ -290,13 +290,16 @@ fn render_value(
     parent_status: ParentStatus,
 ) -> Response {
     let mut job = ui.ctx().memory_mut(|mem| {
-        mem.caches.cache::<ValueLayoutJobCreatorCache>().get((
-            style.resolve_visuals(ui),
-            value_str,
-            value_type,
-            search_term,
-            &style.resolve_font_id(ui),
-        ))
+        mem.caches
+            .cache::<ValueLayoutJobCreatorCache>()
+            .get((
+                style.resolve_visuals(ui),
+                value_str,
+                value_type,
+                search_term,
+                &style.resolve_font_id(ui),
+            ))
+            .clone()
     });
     job.wrap = style.resolve_value_text_wrapping(parent_status, ui);
     render_job(ui, job)
@@ -367,12 +370,15 @@ fn render_property(
     search_term: Option<&SearchTerm>,
 ) -> Response {
     let job = ui.ctx().memory_mut(|mem| {
-        mem.caches.cache::<PropertyLayoutJobCreatorCache>().get((
-            style.resolve_visuals(ui),
-            property,
-            search_term,
-            &style.resolve_font_id(ui),
-        ))
+        mem.caches
+            .cache::<PropertyLayoutJobCreatorCache>()
+            .get((
+                style.resolve_visuals(ui),
+                property,
+                search_term,
+                &style.resolve_font_id(ui),
+            ))
+            .clone()
     });
 
     render_job(ui, job)

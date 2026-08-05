@@ -31,7 +31,7 @@ impl<'a> JsonPointer<'a, '_> {
     /// Returns a [JsonPointer] to the parent of this pointer, if it exists.
     ///
     /// This is useful for retrieving a pointer to the enclosing array or object of a JSON value.
-    pub fn parent(&self) -> Option<JsonPointer> {
+    pub fn parent(&self) -> Option<JsonPointer<'a, '_>> {
         self.0.split_last().map(|(_, init)| JsonPointer(init))
     }
 }
@@ -46,8 +46,8 @@ pub enum JsonPointerSegment<'a> {
 impl fmt::Display for JsonPointerSegment<'_> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            JsonPointerSegment::Key(key) => write!(f, "{}", key),
-            JsonPointerSegment::Index(idx) => write!(f, "{}", idx),
+            JsonPointerSegment::Key(key) => write!(f, "{key}"),
+            JsonPointerSegment::Index(idx) => write!(f, "{idx}"),
         }
     }
 }
@@ -58,7 +58,7 @@ impl JsonPointerSegment<'_> {
             JsonPointerSegment::Key(key) => {
                 format!("/{}", key.replace('~', "~0").replace('/', "~1"))
             }
-            JsonPointerSegment::Index(idx) => format!("/{}", idx),
+            JsonPointerSegment::Index(idx) => format!("/{idx}"),
         }
     }
 }
